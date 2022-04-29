@@ -586,6 +586,52 @@ class Score2PerfMaestroLanguageUncroppedAug(Score2PerfProblem):
     return True
 
 
+@registry.register_problem('score2perf_transfer_learning')
+class Score2PerfTransferLearning(Score2PerfProblem):
+  def performances_input_transform(self, tmp_dir):
+    from magenta.models.score2perf import datagen_beam  # pylint: disable=g-import-not-at-top,import-outside-toplevel
+    return datagen_beam.ReadNoteSequencesFromTFRecord("tmp/score2perf_transfer_learning.tfrecord")
+    # del tmp_dir
+    # from magenta.models.score2perf import datagen_beam  # pylint: disable=g-import-not-at-top,import-outside-toplevel
+    # return dict(
+    #     (split_name, datagen_beam.ReadNoteSequencesFromTFRecord(tfrecord_path))
+    #     for split_name, tfrecord_path in TRANSFER_LEARNING_PATHS.items())
+
+  @property
+  def splits(self):
+    return {"train": 0.8, "dev": 0.1, "test": 0.1}
+    # return {"train": 0.8, "dev": 0.1, "test": 0.1}
+
+  @property
+  def min_hop_size_seconds(self):
+    return 0.0
+
+  @property
+  def max_hop_size_seconds(self):
+    return 0.0
+
+  @property
+  def add_eos_symbol(self):
+    return False
+
+  @property
+  def stretch_factors(self):
+    # Stretch by -5%, -2.5%, 0%, 2.5%, and 5%.
+    return [0.95, 0.975, 1.0, 1.025, 1.05]
+
+  @property
+  def transpose_amounts(self):
+    # Transpose no more than a minor third.
+    return [-3, -2, -1, 0, 1, 2, 3]
+
+  @property
+  def random_crop_in_train(self):
+    return True
+
+  @property
+  def split_in_eval(self):
+    return True
+
 @registry.register_problem('score2perf_maestro_absmel2perf_5s_to_30s_aug10x')
 class Score2PerfMaestroAbsMel2Perf5sTo30sAug10x(AbsoluteMelody2PerfProblem):
   """Generate performances from an absolute-timed melody, with augmentation."""
